@@ -1,0 +1,7 @@
+# dont track any data folder
+
+**/data/
+.DS_Store
+HW1/hw1/code/*.npz
+HW1/hw1/code/*.npy
+HW1/test
