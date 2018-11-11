@@ -400,7 +400,7 @@ def reProjectionError(K1,M1,K2,M2,p1,p2,P):
     pts1_new = pts1_new[:2,:]
     pts2_new = pts2_new[:2,:]
 
-    err = np.power(np.subtract(p1.T,pts1_new),2) + np.power(np.subtract(p1.T,pts2_new),2)
+    err = np.power(np.subtract(p1.T,pts1_new),2) + np.power(np.subtract(p2.T,pts2_new),2)
     err = np.sqrt(np.sum(err))
     return err
 
