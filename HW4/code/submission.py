@@ -296,7 +296,7 @@ Q5.2: Inverse Rodrigues formula.
 def sHalf(r):
     theta = np.linalg.norm(r)
 
-    if theta == np.pi and ( (r[0] == r[1] and r[0] == 0 and r[1] == 0 and r[2] < 0) or  (r[0] == 0 and r[2] < 0) or (r[0] < 0) ):
+    if theta == np.pi and ( (r[0] == r[1] and r[0] == 0 and r[1] == 0 and r[2] < 0) or  (r[0] == 0 and r[1] < 0) or (r[0] < 0) ):
         return -1*r
     return r
 
