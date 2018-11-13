@@ -149,7 +149,7 @@ def triangulate(C1, pts1, C2, pts2):
 
     err = np.power(np.subtract(pts1.T,pts1_new),2) + np.power(np.subtract(pts2.T,pts2_new),2)
     err = np.sum(err)
-
+    print (err)
     return P,err
 
 '''
