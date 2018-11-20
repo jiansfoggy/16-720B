@@ -9,7 +9,8 @@ from util import *
 # we will do XW + b. 
 # X be [Examples, Dimensions]
 def initialize_weights(in_size,out_size,params,name=''):
-    W, b = None, None
+    a = np.sqrt(6)/np.sqrt(in_size+out_size)
+    W, b = np.random.uniform(-a,a,(in_size, out_size)), np.zeros(out_size)
     
     params['W' + name] = W
     params['b' + name] = b
@@ -18,7 +19,7 @@ def initialize_weights(in_size,out_size,params,name=''):
 # x is a matrix
 # a sigmoid activation function
 def sigmoid(x):
-    res = None
+    res = 1/(1+np.exp(-x))
     return res
 
 # Q 2.2.2
@@ -38,7 +39,8 @@ def forward(X,params,name='',activation=sigmoid):
     b = params['b' + name]
 
     # your code here
-    
+    pre_act = np.matmul(X, W) + b
+    post_act = activation(pre_act)
 
     # store the pre-activation and post-activation values
     # these will be important in backprop
@@ -50,17 +52,25 @@ def forward(X,params,name='',activation=sigmoid):
 # x is [examples,classes]
 # softmax should be done for each row
 def softmax(x):
-    res = None
-    
-    return res
+    s = np.max(x, axis=1)
+    s = s[:, np.newaxis]
+    e_x = np.exp(x-s)
+    div = np.sum(e_x, axis=1)
+    div = div[:, np.newaxis]
+    return e_x/div
 
 # Q 2.2.3
 # compute total loss and accuracy
 # y is size [examples,classes]
 # probs is size [examples,classes]
 def compute_loss_and_acc(y, probs):
-    loss, acc = None, None
-    
+    actual_classes = np.argmax(probs, axis=1)
+    b = np.zeros((actual_classes.shape[0], probs.shape[1]))
+    b[np.arange(actual_classes.shape[0]), actual_classes] = 1
+    correct_count = np.sum(np.all(np.equal(y, b), axis=1))
+    acc = correct_count/y.shape[0]
+
+    loss = -1*np.einsum('ij,ij->i', y, np.log(probs))
     return loss, acc 
 
 # we give this to you
@@ -100,5 +110,13 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
 # return a list of [(batch1_x,batch1_y)...]
 def get_random_batches(x,y,batch_size):
     batches = []
-    
+    idx = np.random.permutation(x.shape[0])
+    x_temp = x[idx,:]
+    y_temp = y[idx,:]
+    batch_x = np.split(x_temp, batch_size)
+    batch_y = np.split(y_temp, batch_size)
+
+    for a,b in zip(batch_x,batch_y):
+        batches.append((a,b))
+
     return batches
