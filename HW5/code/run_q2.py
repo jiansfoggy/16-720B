@@ -20,7 +20,7 @@ y_idx = np.array([0 for _ in range(10)] + [1 for _ in range(10)] + [2 for _ in r
 # turn to one_hot
 y = np.zeros((y_idx.shape[0],y_idx.max()+1))
 y[np.arange(y_idx.shape[0]),y_idx] = 1
-# print (y)
+print (y.shape)
 
 # parameters in a dictionary
 params = {}
