@@ -71,7 +71,8 @@ def compute_loss_and_acc(y, probs):
     acc = correct_count/y.shape[0]
 
     loss = -1*np.einsum('ij,ij->i', y, np.log(probs))
-    return loss, acc 
+    loss = np.sum(loss)
+    return loss, acc
 
 # we give this to you
 # because you proved it
@@ -98,7 +99,12 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
     # your code here
     # do the derivative through activation first
     # then compute the derivative W,b, and X
-    
+
+    act_deriv = activation_deriv(post_act)*delta
+
+    grad_W = np.matmul(X.T, act_deriv)
+    grad_b = np.sum(act_deriv, axis=0)
+    grad_X = np.matmul(W, act_deriv.T).T
 
     # store the gradients
     params['grad_W' + name] = grad_W
@@ -113,8 +119,9 @@ def get_random_batches(x,y,batch_size):
     idx = np.random.permutation(x.shape[0])
     x_temp = x[idx,:]
     y_temp = y[idx,:]
-    batch_x = np.split(x_temp, batch_size)
-    batch_y = np.split(y_temp, batch_size)
+    num_batches = x.shape[0]/batch_size
+    batch_x = np.split(x_temp, num_batches)
+    batch_y = np.split(y_temp, num_batches)
 
     for a,b in zip(batch_x,batch_y):
         batches.append((a,b))
