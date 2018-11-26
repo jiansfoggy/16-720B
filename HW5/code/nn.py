@@ -64,6 +64,7 @@ def softmax(x):
 # y is size [examples,classes]
 # probs is size [examples,classes]
 def compute_loss_and_acc(y, probs):
+    loss, acc = None, None
     actual_classes = np.argmax(probs, axis=1)
     b = np.zeros((actual_classes.shape[0], probs.shape[1]))
     b[np.arange(actual_classes.shape[0]), actual_classes] = 1
