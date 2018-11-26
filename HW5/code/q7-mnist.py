@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Net(nn.Module):
     def __init__(self):
@@ -25,17 +27,24 @@ class Net(nn.Module):
 
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
+    total_loss = 0
+    correct = 0
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
-        print (output, target)
         loss = F.nll_loss(output, target)
+        total_loss += loss.item()
+        pred = output.max(1, keepdim=True)[1]
+        correct += pred.eq(target.view_as(pred)).sum().item()
         loss.backward()
         optimizer.step()
 
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {}, Loss: {:.6f}'.format(epoch, loss.item()))
+    
+    acc = correct / len(train_loader.dataset)
+    return total_loss, acc
 
 def test(args, model, device, test_loader):
     model.eval()
@@ -50,7 +59,7 @@ def test(args, model, device, test_loader):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
-    print('Test set: Average loss: {:.4f}, Accuracy: {:.0f}%'.format(test_loss, 100. * correct / len(test_loader.dataset)))
+    print('Test set: Average loss: {:.4f}, Accuracy: {:.02f}%'.format(test_loss, 100. * correct / len(test_loader.dataset)))
 
 def main():
     # Training settings
@@ -92,9 +101,29 @@ def main():
     model = Net().to(device)
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-    for epoch in range(1, 2):
-        train(args, model, device, train_loader, optimizer, epoch)
+    plot_loss = []
+    plot_acc = []
+    for epoch in range(1, 10):
+        iteration_loss, iteration_acc = train(args, model, device, train_loader, optimizer, epoch)
+        plot_loss.append(iteration_loss)
+        plot_acc.append(iteration_acc)
         test(args, model, device, test_loader)
+
+    x = np.arange(1,10)
+    plt.plot(x, plot_loss)
+    plt.xlabel('Num. Epochs')
+    plt.ylabel('Average Training Loss')
+    plt.title('Loss vs Num. Epochs')
+    plt.savefig('../results/q7-mnist-loss.png')
+    
+    plt.clf()
+    
+    x = np.arange(1,10)
+    plt.plot(x, plot_acc)
+    plt.xlabel('Num. Epochs')
+    plt.ylabel('Training Accuracy')
+    plt.title('Accuracy vs Num. Epochs')
+    plt.savefig('../results/q7-mnist-acc.png')
 
 if __name__ == '__main__':
     main()
