@@ -6,8 +6,8 @@ from skimage.measure import compare_psnr as psnr
 import matplotlib.pyplot as plt
 import pickle
 
-train_data = scipy.io.loadmat('../data/data/nist36_train.mat')
-valid_data = scipy.io.loadmat('../data/data/nist36_valid.mat')
+train_data = scipy.io.loadmat('../data/nist36_train.mat')
+valid_data = scipy.io.loadmat('../data/nist36_valid.mat')
 
 # we don't need labels now!
 train_x = train_data['train_data']
@@ -98,18 +98,26 @@ plt.show()
 with open('q5_weights.pickle', 'wb') as outputfile:
     pickle.dump(params, outputfile)
 
+# params = pickle.load(open('q5_weights.pickle', 'rb'))
+
 # visualize some results
 # Q5.3.1
-# h1 = forward(xb,params,'layer1',relu)
-# h2 = forward(h1,params,'hidden',relu)
-# h3 = forward(h2,params,'hidden2',relu)
-# out = forward(h3,params,'output',sigmoid)
-# for i in range(5):
-#     plt.subplot(2,1,1)
-#     plt.imshow(xb[i].reshape(32,32).T)
-#     plt.subplot(2,1,2)
-#     plt.imshow(out[i].reshape(32,32).T)
-#     plt.show()
+idx = [2837, 2835, 2961, 2952, 1353, 1360, 1295, 1241, 252, 256]
+temp_x = valid_x[idx,:]
+
+h1 = forward(temp_x,params,'layer1',relu)
+h2 = forward(h1,params,'hidden',relu)
+h3 = forward(h2,params,'hidden2',relu)
+out = forward(h3,params,'output',sigmoid)
+loss = np.sum(np.square(temp_x - out))
+print (loss)
+
+for i in range(10):
+    plt.subplot(2,1,1)
+    plt.imshow(temp_x[i].reshape(32,32).T)
+    plt.subplot(2,1,2)
+    plt.imshow(out[i].reshape(32,32).T)
+    plt.show()
 
 # # evaluate PSNR
 # # Q5.3.2
