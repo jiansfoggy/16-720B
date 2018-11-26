@@ -6,9 +6,9 @@ from nn import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
-train_data = scipy.io.loadmat('../data/data/nist36_train.mat')
-valid_data = scipy.io.loadmat('../data/data/nist36_valid.mat')
-test_data = scipy.io.loadmat('../data/data/nist36_test.mat')
+train_data = scipy.io.loadmat('../data/nist36_train.mat')
+valid_data = scipy.io.loadmat('../data/nist36_valid.mat')
+test_data = scipy.io.loadmat('../data/nist36_test.mat')
 
 train_x, train_y = train_data['train_data'], train_data['train_labels']
 valid_x, valid_y = valid_data['valid_data'], valid_data['valid_labels']
