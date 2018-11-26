@@ -29,10 +29,6 @@ params = {}
 initialize_weights(1024,hidden_size,params,'layer1')
 initialize_weights(hidden_size,36,params,'output')
 
-saved_params = {k:v for k,v in params.items() if '_' not in k}
-with open('q3_weights_init.pickle', 'wb') as handle:
-    pickle.dump(saved_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 def apply_gradient(params, name, learning_rate):
         W = params['W' + name]
         b = params['b' + name]
@@ -144,7 +140,7 @@ plt.show()
 
 # Q3.1.4
 params = pickle.load(open('q3_weights.pickle', 'rb'))
-confusion_matrix = np.zeros((test_y.shape[1],test_y.shape[1]))
+confusion_matrix = np.zeros((train_y.shape[1], train_y.shape[1]))
 h1 = forward(train_x, params, 'layer1')
 probs = forward(h1, params, 'output', softmax)
 train_loss, train_acc = compute_loss_and_acc(train_y, probs)
