@@ -72,7 +72,6 @@ predicted_txt = []
 gt1 = [['DEEPLEARNING','DEEPERLEARNING','DEEPESTLEARNING'], ['TODOLIST','1MAKEATODOLIST','2CHECKOFFTHEFIRST','THINGONTODOLIST','3REALIZEYOUHAVEALREADY','COMPLETED2THINGS','4REWARDYOURSELFWITH','ANAP'], ['ABCDEFG','HIJKLMN','OPQRSTU','VWXYZ','1234567890'], ['HAIKUSAREEASY','BUTSOMETIMESTHEYDONTMAKESENSE','REFRIGERATOR']]
 gt = ['DEEPLEARNINGDEEPERLEARNINGDEEPESTLEARNING','TODOLIST1MAKEATODOLIST2CHECKOFFTHEFIRSTTHINGONTODOLIST3REALIZEYOUHAVEALREADYCOMPLETED2THINGS4REWARDYOURSELFWITHANAP', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890', 'HAIKUSAREEASYBUTSOMETIMESTHEYDONTMAKESENSEREFRIGERATOR']
 
-final_data_for_emnist = []
 for img in os.listdir('../images'):
     im1 = skimage.img_as_float(skimage.io.imread(os.path.join('../images',img)))
     bboxes, bw = findLetters(im1)
@@ -96,38 +95,29 @@ for img in os.listdir('../images'):
         row = np.array(rows[i])
         row = row[row[:, 1].argsort()]
         batch = fetchString(row, bw, 2)
-        final_data_for_emnist.append(batch)
 
-        # h1 = forward(batch, params, 'layer1')
-        # probs = forward(h1, params, 'output', softmax)
-        # predicted_labels = np.argmax(probs, axis=1)
-        # temp_pred_text = "".join(letters[predicted_labels])
-        # print (temp_pred_text)
-        # predicted_text.append(temp_pred_text)
+        h1 = forward(batch, params, 'layer1')
+        probs = forward(h1, params, 'output', softmax)
+        predicted_labels = np.argmax(probs, axis=1)
+        temp_pred_text = "".join(letters[predicted_labels])
+        predicted_text.append(temp_pred_text)
 
-    # predicted_txt.append(predicted_text)
+    predicted_txt.append(predicted_text)
 
-print (final_data_for_emnist)
-# final_data_for_emnist = np.stack(final_data_for_emnist, axis=-1)
-# print (final_data_for_emnist.shape)
+count = np.zeros((4,8))
+str_len = np.zeros((4,8))
+for i, (row1,row2) in enumerate(zip(gt1, predicted_txt)):
+    for j, (a, b) in enumerate(zip(row1, row2)):
+        str_len[i][j] = len(a)
+        for c,d in zip(a,b):
+            if c == d:
+                count[i][j] += 1
 
-# print (predicted_txt)
-
-# count = np.zeros((4,8))
-# str_len = np.zeros((4,8))
-# for i, (row1,row2) in enumerate(zip(gt1, predicted_txt)):
-#     # print (i, row1, row2)
-#     for j, (a, b) in enumerate(zip(row1, row2)):
-#         str_len[i][j] = len(a)
-#         for c,d in zip(a,b):
-#             if c == d:
-#                 count[i][j] += 1
-
-# print (count, str_len)
-# acc = np.divide(count, str_len)
-# acc = np.nan_to_num(acc, 0)
-# print (np.true_divide(acc.sum(1),(acc!=0).sum(1)))
-# print (acc)
+print (count, str_len)
+acc = np.divide(count, str_len)
+acc = np.nan_to_num(acc, 0)
+print (np.true_divide(acc.sum(1),(acc!=0).sum(1)))
+print (acc)
 
 # inv_count = [0,0,0,0]
 # count = 0

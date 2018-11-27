@@ -41,7 +41,6 @@ def check_accuracy(model, loader, dtype):
   acc = float(num_correct) / num_samples
   return acc
 
-
 def finetuneSqueeNet(train_dset, train_loader, val_loader, args):
     model = models.squeezenet1_1(pretrained=True)
     # print (model)

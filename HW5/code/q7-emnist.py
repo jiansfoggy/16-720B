@@ -5,6 +5,54 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
+from q4 import *
+import os
+import skimage.io
+import string
+
+def fetchRows(bboxes):
+    rows = []
+    row = []
+    for i in range(bboxes.shape[0] - 1):
+        if abs(bboxes[i][0] - bboxes[i+1][0]) < 100:
+            row.append(bboxes[i])
+        else:
+            row.append(bboxes[i])
+            rows.append(row)
+            row = []
+    if i == bboxes.shape[0] - 2:
+        row.append(bboxes[i+1])
+        rows.append(row)
+
+    rows = np.array(rows)
+    return rows
+
+def fetchString(row, bw, pad_dist=2):
+    batch = []
+    for j in range(row.shape[0]):
+        minr, minc, maxr, maxc = row[j]
+        
+        minr -= pad_dist
+        minc -= pad_dist
+        maxr += pad_dist
+        maxc += pad_dist
+
+        rowcenter = round((maxr + minr + 1) / 2)
+        colcenter = round((maxc + minc + 1) / 2)
+
+        lengthToCrop = max(maxr - minr + 1, maxc - minc + 1)
+        min_r = int(round(rowcenter - (lengthToCrop / 2)))
+        max_r = int(round(rowcenter + (lengthToCrop / 2)))
+        min_c = int(round(colcenter - (lengthToCrop / 2)))
+        max_c = int(round(colcenter + (lengthToCrop / 2)))
+
+        crop_img = bw[min_r: max_r, min_c: max_c]
+        crop_img = skfilter.gaussian(crop_img)
+        crop_img = skimage.transform.resize(crop_img, (28, 28))
+        crop_img = 1-np.pad(crop_img, pad_dist, 'constant')
+        crop_img = crop_img.T
+        batch.append(crop_img.flatten())
+    return np.array(batch)
 
 class Net(nn.Module):
     def __init__(self):
@@ -37,23 +85,31 @@ def train(args, model, device, train_loader, optimizer, epoch):
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {}, Loss: {:.6f}'.format(epoch, loss.item()))
 
-def test(args, model, device, test_loader):
-    model.eval()
-    test_loss = 0
-    correct = 0
-    with torch.no_grad():
-        for data, target in test_loader:
-            data, target = data.to(device), target.to(device)
-            output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item()
-            pred = output.max(1, keepdim=True)[1]
-            correct += pred.eq(target.view_as(pred)).sum().item()
+# def test(args, model, device, test_loader):
+#     model.eval()
+#     test_loss = 0
+#     correct = 0
+#     with torch.no_grad():
+#         for data, target in test_loader:
+#             data, target = data.to(device), target.to(device)
+#             output = model(data)
+#             test_loss += F.nll_loss(output, target, reduction='sum').item()
+#             pred = output.max(1, keepdim=True)[1]
+#             correct += pred.eq(target.view_as(pred)).sum().item()
 
-    test_loss /= len(test_loader.dataset)
-    print('Test set: Average loss: {:.4f}, Accuracy: {:.0f}%'.format(test_loss, 100. * correct / len(test_loader.dataset)))
+#     test_loss /= len(test_loader.dataset)
+#     print('Test set: Average loss: {:.4f}, Accuracy: {:.0f}%'.format(test_loss, 100. * correct / len(test_loader.dataset)))
 
-def main():
-    # Training settings
+if __name__ == "__main__":
+
+    letters = {'0': 48, '1': 49, '2': 50, '3': 51, '4': 52, '5': 53, '6': 54, '7': 55, '8': 56, '9': 57, '10': 65, '11': 66, '12': 67, '13': 68, '14': 69, '15': 70, '16': 71, '17': 72, '18': 73, '19': 74, '20': 75, '21': 76, '22': 77, '23': 78, '24': 79, '25': 80, '26': 81, '27': 82, '28': 83, '29': 84, '30': 85, '31': 86, '32': 87, '33': 88, '34': 89, '35': 90, '36': 97, '37': 98, '38': 100, '39': 101, '40': 102, '41': 103, '42': 104, '43': 110, '44': 113, '45': 114, '46': 116}
+
+    # print (letters)
+
+    final_letters = []
+    for k,v in letters.items():
+        final_letters.append(chr(v))
+    
     parser = argparse.ArgumentParser(description='PyTorch EMNIST Example')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N')
@@ -81,20 +137,45 @@ def main():
                        ])),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     
-    test_loader = torch.utils.data.DataLoader(
-        datasets.EMNIST('../data/emnist', split='balanced', train=False, transform=transforms.Compose([
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.1307,), (0.3081,))
-                       ])),
-        batch_size=args.test_batch_size, shuffle=True, **kwargs)
-
-
+    
     model = Net().to(device)
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-    for epoch in range(1, args.epochs + 1):
+    for epoch in range(1, 10):
         train(args, model, device, train_loader, optimizer, epoch)
-        test(args, model, device, test_loader)
 
-if __name__ == '__main__':
-    main()
+    for img in os.listdir('../images'):
+        im1 = skimage.img_as_float(skimage.io.imread(os.path.join('../images',img)))
+        bboxes, bw = findLetters(im1)
+        bw = np.invert(bw)
+        bboxes = np.array(bboxes)
+        rows = fetchRows(bboxes)
+
+        bw = np.invert(bw)
+        predicted_text = []
+        
+        for i in range(0,rows.shape[0]):
+            row = np.array(rows[i])
+            row = row[row[:, 1].argsort()]
+            batch = fetchString(row, bw, 2)
+
+            strings = [skimage.transform.resize(batch[i].reshape(32,32), (28,28)) for i in range(batch.shape[0])]
+            new_strings = np.array(strings)
+            strings = np.reshape(new_strings, (-1,1,28,28))
+
+            model.eval()
+            output = model(torch.from_numpy(strings).float())
+            predicted_labels = torch.argmax(output, dim=1)
+            predicted_labels = predicted_labels.numpy()
+            print (predicted_labels)
+            text = ""
+            for i in predicted_labels:
+                print (i)
+                text += final_letters[i]
+            # predicted_text = "".join(final_letters[predicted_labels])
+
+            print (text)
+
+
+
+
