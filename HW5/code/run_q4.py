@@ -38,7 +38,7 @@ def fetchRows(bboxes):
     rows = np.array(rows)
     return rows
 
-def get_batch(row, bw, pad_dist=2):
+def fetchString(row, bw, pad_dist=2):
     batch = []
     for j in range(row.shape[0]):
         minr, minc, maxr, maxc = row[j]
@@ -69,8 +69,10 @@ letters = np.array([_ for _ in string.ascii_uppercase[:26]] + [str(_) for _ in r
 params = pickle.load(open('q3_weights.pickle','rb'))
 
 predicted_txt = []
-gt = ['DEEPLEARNINGDEEPERLEARNINGDEEPESTLEARNING', 'TODOLIST1MAKEATODOLIST2CHECKOFFTHEFIRSTTHINGONTODOLIST3REALIZEYOUHAVEALREADYCOMPLETED2THINGS4REWARDYOURSELFWITHANAP', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890', 'HAIKUSAREEASYBUTSOMETIMESTHEYDONTMAKESENSEREFRIGERATOR']
+gt1 = [['DEEPLEARNING','DEEPERLEARNING','DEEPESTLEARNING'], ['TODOLIST','1MAKEATODOLIST','2CHECKOFFTHEFIRST','THINGONTODOLIST','3REALIZEYOUHAVEALREADY','COMPLETED2THINGS','4REWARDYOURSELFWITH','ANAP'], ['ABCDEFG','HIJKLMN','OPQRSTU','VWXYZ','1234567890'], ['HAIKUSAREEASY','BUTSOMETIMESTHEYDONTMAKESENSE','REFRIGERATOR']]
+gt = ['DEEPLEARNINGDEEPERLEARNINGDEEPESTLEARNING','TODOLIST1MAKEATODOLIST2CHECKOFFTHEFIRSTTHINGONTODOLIST3REALIZEYOUHAVEALREADYCOMPLETED2THINGS4REWARDYOURSELFWITHANAP', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890', 'HAIKUSAREEASYBUTSOMETIMESTHEYDONTMAKESENSEREFRIGERATOR']
 
+final_data_for_emnist = []
 for img in os.listdir('../images'):
     im1 = skimage.img_as_float(skimage.io.imread(os.path.join('../images',img)))
     bboxes, bw = findLetters(im1)
@@ -82,41 +84,64 @@ for img in os.listdir('../images'):
         rect = matplotlib.patches.Rectangle((minc, minr), maxc - minc, maxr - minr,
                                 fill=False, edgecolor='red', linewidth=2)
         plt.gca().add_patch(rect)
-    plt.show()
+    # plt.show()
 
     bboxes = np.array(bboxes)
     rows = fetchRows(bboxes)
 
     bw = np.invert(bw)
-    predicted_text = ""
+    predicted_text = []
+    
     for i in range(0,rows.shape[0]):
         row = np.array(rows[i])
         row = row[row[:, 1].argsort()]
-        batch = get_batch(row, bw, pad_dist=2)
+        batch = fetchString(row, bw, 2)
+        final_data_for_emnist.append(batch)
 
-        h1 = forward(batch, params, 'layer1')
-        probs = forward(h1, params, 'output', softmax)
-        predicted_labels = np.argmax(probs, axis=1)
-        temp_pred_text = "".join(letters[predicted_labels])
-        print (temp_pred_text)
-        predicted_text += temp_pred_text
+        # h1 = forward(batch, params, 'layer1')
+        # probs = forward(h1, params, 'output', softmax)
+        # predicted_labels = np.argmax(probs, axis=1)
+        # temp_pred_text = "".join(letters[predicted_labels])
+        # print (temp_pred_text)
+        # predicted_text.append(temp_pred_text)
 
-    predicted_txt.append(predicted_text)
+    # predicted_txt.append(predicted_text)
 
-inv_count = [0,0,0,0]
-count = 0
-for i, (str1, str2) in enumerate(zip(gt, predicted_txt)):
-    for a,b in zip(str1, str2):
-        if a == b:
-            inv_count[i] += 1
+print (final_data_for_emnist)
+# final_data_for_emnist = np.stack(final_data_for_emnist, axis=-1)
+# print (final_data_for_emnist.shape)
 
-str_len = [len(x) for x in gt]
-total_len = sum(str_len)
-total_count = sum(inv_count)
-inv_acc = []
-for a,b in zip(str_len, inv_count):
-    inv_acc.append(b/a)
-total_acc = total_count/total_len
-print ("Total Accuracy {:.03f}".format(total_acc))
-print ("Individual Accuracies", inv_acc)
-print ("Predicted Strings: ", predicted_txt)
+# print (predicted_txt)
+
+# count = np.zeros((4,8))
+# str_len = np.zeros((4,8))
+# for i, (row1,row2) in enumerate(zip(gt1, predicted_txt)):
+#     # print (i, row1, row2)
+#     for j, (a, b) in enumerate(zip(row1, row2)):
+#         str_len[i][j] = len(a)
+#         for c,d in zip(a,b):
+#             if c == d:
+#                 count[i][j] += 1
+
+# print (count, str_len)
+# acc = np.divide(count, str_len)
+# acc = np.nan_to_num(acc, 0)
+# print (np.true_divide(acc.sum(1),(acc!=0).sum(1)))
+# print (acc)
+
+# inv_count = [0,0,0,0]
+# count = 0
+# for i, (str1, str2) in enumerate(zip(gt, predicted_txt)):
+#     for a,b in zip(str1, str2):
+#         if a == b:
+#             inv_count[i] += 1
+
+# str_len = [len(x) for x in gt]
+# total_len = sum(str_len)
+# total_count = sum(inv_count)
+# inv_acc = []
+# for a,b in zip(str_len, inv_count):
+#     inv_acc.append(b/a)
+# total_acc = total_count/total_len
+# print ("Total Accuracy {:.03f}".format(total_acc))
+# print ("Individual Accuracies", inv_acc)
