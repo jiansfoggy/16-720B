@@ -114,7 +114,7 @@ def main():
     plt.xlabel('Num. Epochs')
     plt.ylabel('Average Training Loss')
     plt.title('Loss vs Num. Epochs')
-    plt.savefig('../results/q7-mnist-loss.png')
+    plt.savefig('q7-mnist-loss.png')
     
     plt.clf()
     
@@ -123,7 +123,7 @@ def main():
     plt.xlabel('Num. Epochs')
     plt.ylabel('Training Accuracy')
     plt.title('Accuracy vs Num. Epochs')
-    plt.savefig('../results/q7-mnist-acc.png')
+    plt.savefig('q7-mnist-acc.png')
 
 if __name__ == '__main__':
     main()

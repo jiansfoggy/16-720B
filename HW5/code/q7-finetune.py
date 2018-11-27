@@ -172,7 +172,7 @@ def main():
     test_dset = ImageFolder(args.test_dir, transform = transform_data)
     test_loader = DataLoader(test_dset, batch_size=args.batch_size, shuffle=True, **kwargs)
 
-    # finetuneSqueeNet(train_dset, train_loader, val_loader, args)
+    finetuneSqueeNet(train_dset, train_loader, val_loader, args)
     scratchTrain(args, device, train_loader, test_loader)
 
 if __name__ == '__main__':

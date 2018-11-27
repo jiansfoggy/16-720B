@@ -49,7 +49,7 @@ def fetchString(row, bw, pad_dist=2):
         crop_img = bw[min_r: max_r, min_c: max_c]
         crop_img = skfilter.gaussian(crop_img)
         crop_img = skimage.transform.resize(crop_img, (28, 28))
-        crop_img = 1-np.pad(crop_img, pad_dist, 'constant')
+        crop_img = np.pad(crop_img, pad_dist, 'constant')
         crop_img = crop_img.T
         batch.append(crop_img.flatten())
     return np.array(batch)
@@ -85,26 +85,10 @@ def train(args, model, device, train_loader, optimizer, epoch):
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {}, Loss: {:.6f}'.format(epoch, loss.item()))
 
-# def test(args, model, device, test_loader):
-#     model.eval()
-#     test_loss = 0
-#     correct = 0
-#     with torch.no_grad():
-#         for data, target in test_loader:
-#             data, target = data.to(device), target.to(device)
-#             output = model(data)
-#             test_loss += F.nll_loss(output, target, reduction='sum').item()
-#             pred = output.max(1, keepdim=True)[1]
-#             correct += pred.eq(target.view_as(pred)).sum().item()
-
-#     test_loss /= len(test_loader.dataset)
-#     print('Test set: Average loss: {:.4f}, Accuracy: {:.0f}%'.format(test_loss, 100. * correct / len(test_loader.dataset)))
-
 if __name__ == "__main__":
-
+    predicted_txt = []
+    gt1 = [['DEEPLEARNING','DEEPERLEARNING','DEEPESTLEARNING'], ['TODOLIST','1MAKEATODOLIST','2CHECKOFFTHEFIRST','THINGONTODOLIST','3REALIZEYOUHAVEALREADY','COMPLETED2THINGS','4REWARDYOURSELFWITH','ANAP'], ['ABCDEFG','HIJKLMN','OPQRSTU','VWXYZ','1234567890'], ['HAIKUSAREEASY','BUTSOMETIMESTHEYDONTMAKESENSE','REFRIGERATOR']]
     letters = {'0': 48, '1': 49, '2': 50, '3': 51, '4': 52, '5': 53, '6': 54, '7': 55, '8': 56, '9': 57, '10': 65, '11': 66, '12': 67, '13': 68, '14': 69, '15': 70, '16': 71, '17': 72, '18': 73, '19': 74, '20': 75, '21': 76, '22': 77, '23': 78, '24': 79, '25': 80, '26': 81, '27': 82, '28': 83, '29': 84, '30': 85, '31': 86, '32': 87, '33': 88, '34': 89, '35': 90, '36': 97, '37': 98, '38': 100, '39': 101, '40': 102, '41': 103, '42': 104, '43': 110, '44': 113, '45': 114, '46': 116}
-
-    # print (letters)
 
     final_letters = []
     for k,v in letters.items():
@@ -141,7 +125,7 @@ if __name__ == "__main__":
     model = Net().to(device)
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-    for epoch in range(1, 10):
+    for epoch in range(1, args.epochs+1):
         train(args, model, device, train_loader, optimizer, epoch)
 
     for img in os.listdir('../images'):
@@ -167,15 +151,46 @@ if __name__ == "__main__":
             output = model(torch.from_numpy(strings).float())
             predicted_labels = torch.argmax(output, dim=1)
             predicted_labels = predicted_labels.numpy()
-            print (predicted_labels)
             text = ""
             for i in predicted_labels:
-                print (i)
+                # print (i)
                 text += final_letters[i]
-            # predicted_text = "".join(final_letters[predicted_labels])
-
             print (text)
+            predicted_text.append(text)
 
+        predicted_txt.append(predicted_text)
 
+    count = np.zeros((4,8))
+    str_len = np.zeros((4,8))
+    for i, (row1,row2) in enumerate(zip(gt1, predicted_txt)):
+        for j, (a, b) in enumerate(zip(row1, row2)):
+            str_len[i][j] = len(a)
+            for c,d in zip(a,b):
+                if c == d:
+                    count[i][j] += 1
 
+    acc = np.divide(count, str_len)
+    acc = np.nan_to_num(acc, 0)
+    print (np.true_divide(acc.sum(1),(acc!=0).sum(1)))
 
+    # letter_pred = ['DEEPLEARNINGDEEPERLEARNINGDEEPESTLEARNING','T0D0LIST2MAKEATODOLIST2CHECK0FFTHEFIRSTTHING0NTODOLIST3RBALIZEYOUHWVEALREADYCOMPLETED2THINGS4REWARDY0URSELFWITHANAP', 'ABCDEFGHIJKLMN0PQRSTUVWXYZ1234567890','HAIKUSAREEnASYBUTSOMETIMESTKEYDONTMAKESENSEREFRIGERATOR']
+
+    # gt = ['DEEPLEARNINGDEEPERLEARNINGDEEPESTLEARNING','TODOLIST1MAKEATODOLIST2CHECKOFFTHEFIRSTTHINGONTODOLIST3REALIZEYOUHAVEALREADYCOMPLETED2THINGS4REWARDYOURSELFWITHANAP', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890', 'HAIKUSAREEASYBUTSOMETIMESTHEYDONTMAKESENSEREFRIGERATOR']
+
+    # inv_count = [0,0,0,0]
+    # count = 0
+    # for i, (str1, str2) in enumerate(zip(gt, letter_pred)):
+    #     for a,b in zip(str1, str2):
+    #         if a == b:
+    #             inv_count[i] += 1
+
+    # str_len = [len(x) for x in gt]
+    # total_len = sum(str_len)
+    # total_count = sum(inv_count)
+    # inv_acc = []
+    # for a,b in zip(str_len, inv_count):
+    #     inv_acc.append(b/a)
+    # total_acc = total_count/total_len
+    # print ("Total Accuracy {:.03f}".format(total_acc))
+    # print ("Individual Accuracies", np.round(inv_acc, decimals=4))
+    # print (acc)

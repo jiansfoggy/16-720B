@@ -1,0 +1,71 @@
+Train accuracy:  0.5205882352941177
+Val accuracy:  0.47352941176470587
+Starting epoch 2 / 24
+Train accuracy:  0.5647058823529412
+Val accuracy:  0.4970588235294118
+Starting epoch 3 / 24
+Train accuracy:  0.7264705882352941
+Val accuracy:  0.6852941176470588
+Starting epoch 4 / 24
+Train accuracy:  0.763235294117647
+Val accuracy:  0.6705882352941176
+Starting epoch 5 / 24
+Train accuracy:  0.6941176470588235
+Val accuracy:  0.638235294117647
+Starting epoch 6 / 24
+Train accuracy:  0.7588235294117647
+Val accuracy:  0.6970588235294117
+Starting epoch 7 / 24
+Train accuracy:  0.8220588235294117
+Val accuracy:  0.7294117647058823
+Starting epoch 8 / 24
+Train accuracy:  0.7970588235294118
+Val accuracy:  0.7294117647058823
+Starting epoch 9 / 24
+Train accuracy:  0.8220588235294117
+Val accuracy:  0.7264705882352941
+Starting epoch 10 / 24
+Train accuracy:  0.7602941176470588
+Val accuracy:  0.6764705882352942
+Starting epoch 11 / 24
+Train accuracy:  0.75
+Val accuracy:  0.7029411764705882
+Starting epoch 12 / 24
+Train accuracy:  0.8264705882352941
+Val accuracy:  0.7764705882352941
+Starting epoch 13 / 24
+Train accuracy:  0.788235294117647
+Val accuracy:  0.7235294117647059
+Starting epoch 14 / 24
+Train accuracy:  0.8573529411764705
+Val accuracy:  0.7705882352941177
+Starting epoch 15 / 24
+Train accuracy:  0.6720588235294118
+Val accuracy:  0.611764705882353
+Starting epoch 16 / 24
+Train accuracy:  0.8897058823529411
+Val accuracy:  0.8264705882352941
+Starting epoch 17 / 24
+Train accuracy:  0.8264705882352941
+Val accuracy:  0.7617647058823529
+Starting epoch 18 / 24
+Train accuracy:  0.8808823529411764
+Val accuracy:  0.8058823529411765
+Starting epoch 19 / 24
+Train accuracy:  0.875
+Val accuracy:  0.8058823529411765
+Starting epoch 20 / 24
+Train accuracy:  0.825
+Val accuracy:  0.7470588235294118
+Starting epoch 21 / 24
+Train accuracy:  0.8720588235294118
+Val accuracy:  0.7941176470588235
+Starting epoch 22 / 24
+Train accuracy:  0.85
+Val accuracy:  0.7705882352941177
+Starting epoch 23 / 24
+Train accuracy:  0.8955882352941177
+Val accuracy:  0.8323529411764706
+Starting epoch 24 / 24
+Train accuracy:  0.8441176470588235
+Val accuracy:  0.7588235294117647
