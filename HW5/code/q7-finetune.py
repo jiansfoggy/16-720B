@@ -60,7 +60,7 @@ def finetuneSqueeNet(train_dset, train_loader, val_loader, args):
 
     for epoch in range(args.epochs):
         # Run an epoch over the training data.
-        print('Starting epoch %d / %d' % (epoch + 1, args.num_epochs1))
+        print('Starting epoch %d / %d' % (epoch + 1, args.epochs))
         run_epoch(model, loss_fn, train_loader, optimizer, dtype)
 
         # Check accuracy on the train and val sets.
